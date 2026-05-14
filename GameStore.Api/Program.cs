@@ -51,6 +51,11 @@ namespace GameStore.Api
 
                 // 2. ΜΟΝΙΜΗ ΑΠΟΘΗΚΕΥΣΗ: Παίρνουμε όλη την ενημερωμένη λίστα και τη γράφουμε στο JSON αρχείο
                 var updatedGames = gameService.GetAllGames();
+                foreach (Game game in updatedGames)
+                {
+                    Console.WriteLine(game.GameName);
+                }
+                Console.WriteLine(updatedGames);
                 SaveToJson(path, updatedGames);
 
                 // 3. Επιστροφή σωστής HTTP απάντησης
