@@ -51,15 +51,30 @@ namespace GameStore.Api
 
                 // 2. ΜΟΝΙΜΗ ΑΠΟΘΗΚΕΥΣΗ: Παίρνουμε όλη την ενημερωμένη λίστα και τη γράφουμε στο JSON αρχείο
                 var updatedGames = gameService.GetAllGames();
-                foreach (Game game in updatedGames)
-                {
-                    Console.WriteLine(game.GameName);
-                }
-                Console.WriteLine(updatedGames);
                 SaveToJson(path, updatedGames);
 
                 // 3. Επιστροφή σωστής HTTP απάντησης
                 return Results.Created($"/games", newGameDto);
+            });
+            app.MapPut("/games/{id}", (int id, GameDto newGameDto) =>
+            {
+                if (gameService.GetGameById(id) is null)
+                {
+                    return Results.NotFound();
+                }
+                else
+                {
+                    gameService.UpdateGame(id, newGameDto.GameNameDto,
+                    newGameDto.GameCategoryDto, newGameDto.GamePriceDto, newGameDto.GameDateDto);
+                    return Results.NoContent(); ;
+                }
+
+            });
+
+            app.MapDelete("/games/{id}", (int id) =>
+            {
+                gameService.DeleteGame(id);
+                return Results.NoContent();
             });
 
             app.Run();
