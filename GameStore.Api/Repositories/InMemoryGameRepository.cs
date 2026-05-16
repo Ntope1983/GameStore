@@ -4,12 +4,12 @@
 
     public IEnumerable<Game> GetGames() => _game;
 
-    public Game? GetById(int id) => _game.FirstOrDefault(p => p.GameId == id);
+    public Game? GetById(int id) => _game.FirstOrDefault(p => p.Id == id);
 
     public void Add(Game game)
     {
         _game.Add(game);
-        Console.WriteLine($"The Game {game.GameName} with id {game.GameId} has been added.");
+        Console.WriteLine($"The Game {game.GameName} with id {game.Id} has been added.");
     }
 
     public void DeleteById(int id)
@@ -29,10 +29,10 @@
 
     public void Update(Game game)
     {
-        var existing = GetById(game.GameId);
+        var existing = GetById(game.Id);
         if (existing == null) return;
         existing.GameName = game.GameName;
         existing.GamePrice = game.GamePrice;
-        Console.WriteLine($"The Game with id {existing.GameId} has been Updated.");
+        Console.WriteLine($"The Game with id {existing.Id} has been Updated.");
     }
 }

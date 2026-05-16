@@ -1,7 +1,10 @@
 ﻿public class GameDto
 {
-    public string GameNameDto { get; set; } = string.Empty;
-    public string GameCategoryDto { get; set; } = string.Empty;
-    public decimal GamePriceDto { get; set; }
-    public DateOnly GameDateDto { get; set; }
+    public string GameName { get; set; } = string.Empty;
+
+    public string? GameCategory { get; set; }
+
+    public decimal? GamePrice { get; set; }
+
+    public DateOnly? GameDate { get; set; }
 }

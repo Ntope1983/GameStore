@@ -1,39 +1,49 @@
 public class GameService : IGameService
 {
-    private readonly IGameRepository _repository;
+    private readonly GameStoreContext _context;
 
-    public GameService(IGameRepository repository)
+    public GameService(GameStoreContext context)
     {
-        _repository = repository;
+        _context = context;
     }
 
-    public IEnumerable<Game> GetAllGames() => _repository.GetGames();
+    public List<Game> GetAllGames()
+        => _context.Games.ToList();
 
-    public Game? GetGameById(int id) => _repository.GetById(id);
+    public Game? GetGameById(int id)
+        => _context.Games.Find(id);
 
-    public void AddGame(string name, string category, decimal price, DateOnly date)
+    public void AddGame(Game game)
     {
-        int id = _repository.GetGames().Any()
-            ? _repository.GetGames().Max(p => p.GameId) + 1
-            : 1;
-
-        var game = new Game(id, name, category, price, date);
-        _repository.Add(game);
+        _context.Games.Add(game);
+        _context.SaveChanges();
     }
 
-    public void DeleteGame(int id) => _repository.DeleteById(id);
-
-    public void UpdateGame(int id, string? name, string? category, decimal? price, DateOnly date)
+    public void DeleteGame(int id)
     {
-        var game = _repository.GetById(id);
+        var game = _context.Games.Find(id);
         if (game == null) return;
 
-        if (name != null)
+        _context.Games.Remove(game);
+        _context.SaveChanges();
+    }
+
+    public void UpdateGame(int id, string name, string? category, decimal? price, DateOnly? date)
+    {
+        var game = _context.Games.Find(id);
+        if (game == null) return;
+
+        if (!string.IsNullOrWhiteSpace(name))
             game.GameName = name;
-        if (category != null)
+
+        if (!string.IsNullOrWhiteSpace(category))
             game.GameCategory = category;
+
         if (price.HasValue)
             game.GamePrice = price.Value;
 
+        game.GameDate = date;
+
+        _context.SaveChanges();
     }
 }

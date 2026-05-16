@@ -1,103 +1,111 @@
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameStore.Api
 {
+    /// <summary>
+    /// Entry point of the application.
+    /// Configures services, middleware, and HTTP endpoints.
+    /// </summary>
     public class Program
     {
+        /// <summary>
+        /// Main method - application bootstrap.
+        /// </summary>
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // ----------------------------------------------------
+            // 🔧 SERVICE REGISTRATION (Dependency Injection)
+            // ----------------------------------------------------
+
+            /// Enables OpenAPI/Swagger documentation generation
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+            /// Registers DbContext for Entity Framework Core
+            builder.Services.AddDbContext<GameStoreContext>(options =>
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("GameStore")));
+
+            /// Registers application service (business logic layer)
+            builder.Services.AddScoped<IGameService, GameService>();
+
+            // Build application pipeline
             var app = builder.Build();
+
+            // ----------------------------------------------------
+            // 🌐 MIDDLEWARE CONFIGURATION
+            // ----------------------------------------------------
 
             if (app.Environment.IsDevelopment())
             {
+                /// Enables Swagger UI only in development
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
-            string path = Path.Combine(AppContext.BaseDirectory, "Games.json");
-            List<Game> gameList = LoadFromJson<Game>(path);
+            // ----------------------------------------------------
+            // 📡 API ENDPOINTS
+            // ----------------------------------------------------
 
-            IGameRepository repository = new InMemoryGameRepository();
-            foreach (Game game in gameList)
+            /// Root endpoint (health check)
+            app.MapGet("/", () => "GameStore API is running!");
+
+            /// GET all games
+            app.MapGet("/games", (IGameService service) =>
+                service.GetAllGames());
+
+            /// GET game by ID
+            app.MapGet("/games/{id}", (int id, IGameService service) =>
             {
-                repository.Add(game);
-            }
-            IGameService gameService = new GameService(repository);
-
-            app.MapGet("/", () => "Hello Word!");
-
-            // ΔΙΟΡΘΩΣΗ: Επιστρέφουμε τα ζωντανά δεδομένα από το Service, όχι τη στατική gameList
-            app.MapGet("/games", () => gameService.GetAllGames());
-
-            // ΔΙΟΡΘΩΣΗ: Επιστρέφουμε τα δεδομένα από το Service για να βρίσκει και τα νέα παιχνίδια
-            app.MapGet("/games/{id}", (int id) =>
-            {
-                var game = gameService.GetGameById(id);
+                var game = service.GetGameById(id);
                 return game is not null ? Results.Ok(game) : Results.NotFound();
             });
 
-            app.MapPost("/games", (GameDto newGameDto) =>
+            /// CREATE new game
+            app.MapPost("/games", (Game game, IGameService service) =>
             {
-                // 1. Προσθήκη του παιχνιδιού στη μνήμη μέσω του Service
-                gameService.AddGame(newGameDto.GameNameDto,
-                                    newGameDto.GameCategoryDto,
-                                    newGameDto.GamePriceDto,
-                                    newGameDto.GameDateDto);
-
-                // 2. ΜΟΝΙΜΗ ΑΠΟΘΗΚΕΥΣΗ: Παίρνουμε όλη την ενημερωμένη λίστα και τη γράφουμε στο JSON αρχείο
-                var updatedGames = gameService.GetAllGames();
-                SaveToJson(path, updatedGames);
-
-                // 3. Επιστροφή σωστής HTTP απάντησης
-                return Results.Created($"/games", newGameDto);
+                service.AddGame(game);
+                return Results.Created($"/games/{game.Id}", game);
             });
-            app.MapPut("/games/{id}", (int id, GameDto newGameDto) =>
+
+            /// UPDATE existing game
+            app.MapPut("/games/{id}", (int id, GameDto dto, IGameService service) =>
             {
-                if (gameService.GetGameById(id) is null)
-                {
+                var existing = service.GetGameById(id);
+
+                if (existing is null)
                     return Results.NotFound();
-                }
-                else
-                {
-                    gameService.UpdateGame(id, newGameDto.GameNameDto,
-                    newGameDto.GameCategoryDto, newGameDto.GamePriceDto, newGameDto.GameDateDto);
-                    return Results.NoContent(); ;
-                }
 
-            });
+                service.UpdateGame(
+                    id,
+                    dto.GameName,
+                    dto.GameCategory,
+                    dto.GamePrice,
+                    dto.GameDate
+                );
 
-            app.MapDelete("/games/{id}", (int id) =>
-            {
-                gameService.DeleteGame(id);
                 return Results.NoContent();
             });
 
-            app.Run();
-        }
-
-        public static List<T> LoadFromJson<T>(string path)
-        {
-            if (!File.Exists(path))
-                return new List<T>();
-
-            string json = File.ReadAllText(path);
-            return JsonSerializer.Deserialize<List<T>>(json) ?? new List<T>();
-        }
-
-        public static void SaveToJson<T>(string path, IEnumerable<T> data) // Έγινε public για να καλείται παντού
-        {
-            var options = new JsonSerializerOptions
+            /// DELETE game
+            app.MapDelete("/games/{id}", (int id, IGameService service) =>
             {
-                WriteIndented = true
-            };
+                var existing = service.GetGameById(id);
 
-            string json = JsonSerializer.Serialize(data, options);
-            File.WriteAllText(path, json);
+                if (existing is null)
+                    return Results.NotFound();
+
+                service.DeleteGame(id);
+
+                return Results.NoContent();
+            });
+
+            // ----------------------------------------------------
+            // 🚀 RUN APPLICATION
+            // ----------------------------------------------------
+            app.Run();
         }
     }
 }
