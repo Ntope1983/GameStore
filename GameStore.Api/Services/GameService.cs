@@ -8,29 +8,29 @@ public class GameService : IGameService
     }
 
     public List<Game> GetAllGames()
-        => _context.Games.ToList();
+        => _context.Game.ToList();
 
     public Game? GetGameById(int id)
-        => _context.Games.Find(id);
+        => _context.Game.Find(id);
 
     public void AddGame(Game game)
     {
-        _context.Games.Add(game);
+        _context.Game.Add(game);
         _context.SaveChanges();
     }
 
     public void DeleteGame(int id)
     {
-        var game = _context.Games.Find(id);
+        var game = _context.User.Find(id);
         if (game == null) return;
 
-        _context.Games.Remove(game);
+        _context.User.Remove(game);
         _context.SaveChanges();
     }
 
     public void UpdateGame(int id, string name, string? category, decimal? price, DateOnly? date)
     {
-        var game = _context.Games.Find(id);
+        var game = _context.Game.Find(id);
         if (game == null) return;
 
         if (!string.IsNullOrWhiteSpace(name))
