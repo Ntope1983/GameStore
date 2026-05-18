@@ -81,10 +81,10 @@ namespace GameStore.Api
                 return Order is not null ? Results.Ok(Order) : Results.NotFound();
             });
             /// CREATE new game
-            app.MapPost("/games", (Game game, IGameService service) =>
+            app.MapPost("/games", (GameDto game, IGameService service) =>
             {
-                service.AddGame(game);
-                return Results.Created($"/games/{game.Id}", game);
+                int idNewGame = service.AddGame(game.GameDtoCreate);
+                return Results.Created($"/games/{idNewGame}", game);
             });
             /// CREATE new user
             app.MapPost("/users", (User user, IUserService service) =>

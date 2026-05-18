@@ -13,10 +13,17 @@ public class GameService : IGameService
     public Game? GetGameById(int id)
         => _context.Game.Find(id);
 
-    public void AddGame(Game game)
+    public int AddGame(GameDto game)
     {
-        _context.Game.Add(game);
+
+        Game Newgame = new Game();
+        Newgame.GameName = game.GameName;
+        Newgame.GameCategory = game.GameCategory;
+        Newgame.GameDate = game.GameDate;
+        Newgame.GamePrice = game.GamePrice;
+        _context.Game.Add(Newgame);
         _context.SaveChanges();
+        return Newgame.Id;
     }
 
     public void DeleteGame(int id)
