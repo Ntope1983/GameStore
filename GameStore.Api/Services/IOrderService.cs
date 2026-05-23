@@ -4,7 +4,7 @@
 
     Order? GetOrderById(int id);
 
-    void AddOrder(Order Order);
+    int AddOrder(OrderDtoCreate Order);
 
 
     void DeleteOrder(int id);

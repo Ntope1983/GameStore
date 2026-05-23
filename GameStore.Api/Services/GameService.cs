@@ -28,10 +28,10 @@ public class GameService : IGameService
 
     public void DeleteGame(int id)
     {
-        var game = _context.User.Find(id);
+        var game = _context.Game.Find(id);
         if (game == null) return;
 
-        _context.User.Remove(game);
+        _context.Game.Remove(game);
         _context.SaveChanges();
     }
 

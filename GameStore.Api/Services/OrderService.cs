@@ -13,9 +13,15 @@
     public Order? GetOrderById(int id)
         => _context.Order.Find(id);
 
-    public void AddOrder(Order Order)
+    public void AddOrder(OrderDtoCreate order)
     {
-        _context.Order.Add(Order);
+        Order newOrder = new Order();
+        newOrder.Id = order.Userid;
+        foreach (int gameId in order.GamesId)
+        {
+            newOrder.Games.
+        }
+        _context.Order.Add(newOrder);
         _context.SaveChanges();
     }
 
