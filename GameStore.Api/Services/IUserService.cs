@@ -5,7 +5,7 @@
 
     User? GetUserById(int id);
 
-    void AddUser(User user);
+    int AddUser(UserDtoCreate user);
 
     void DeleteUser(int id);
 

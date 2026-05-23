@@ -13,10 +13,14 @@
     public User? GetUserById(int id)
         => _context.User.Find(id);
 
-    public void AddUser(User user)
+    public int AddUser(UserDtoCreate user)
     {
-        _context.User.Add(user);
+        User newUser = new();
+        newUser.Username = user.Username;
+        newUser.Email = user.Email;
+        _context.User.Add(newUser);
         _context.SaveChanges();
+        return newUser.Id;
     }
 
     public void DeleteUser(int id)

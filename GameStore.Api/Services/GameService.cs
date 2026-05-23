@@ -13,11 +13,11 @@ public class GameService : IGameService
     public Game? GetGameById(int id)
         => _context.Game.Find(id);
 
-    public int AddGame(GameDto game)
+    public int AddGame(GameDtoCreate game)
     {
 
         Game Newgame = new Game();
-        Newgame.GameName = game.GameName;
+        Newgame.GameName = game.Name;
         Newgame.GameCategory = game.GameCategory;
         Newgame.GameDate = game.GameDate;
         Newgame.GamePrice = game.GamePrice;

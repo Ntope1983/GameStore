@@ -81,16 +81,16 @@ namespace GameStore.Api
                 return Order is not null ? Results.Ok(Order) : Results.NotFound();
             });
             /// CREATE new game
-            app.MapPost("/games", (GameDto game, IGameService service) =>
+            app.MapPost("/games", (GameDtoCreate game, IGameService service) =>
             {
-                int idNewGame = service.AddGame(game.GameDtoCreate);
+                int idNewGame = service.AddGame(game);
                 return Results.Created($"/games/{idNewGame}", game);
             });
             /// CREATE new user
-            app.MapPost("/users", (User user, IUserService service) =>
+            app.MapPost("/users", (UserDtoCreate user, IUserService service) =>
             {
-                service.AddUser(user);
-                return Results.Created($"/users/{user.Id}", user);
+                int id = service.AddUser(user);
+                return Results.Created($"/users/{id}", user);
             });
             /// CREATE new order
             app.MapPost("/orders", (Order order, IOrderService service) =>
@@ -100,7 +100,7 @@ namespace GameStore.Api
             });
 
             /// UPDATE existing game
-            app.MapPut("/games/{id}", (int id, GameDto dto, IGameService service) =>
+            app.MapPut("/games/{id}", (int id, GameDtoCreate dto, IGameService service) =>
             {
                 var existing = service.GetGameById(id);
 
@@ -109,7 +109,7 @@ namespace GameStore.Api
 
                 service.UpdateGame(
                     id,
-                    dto.GameName,
+                    dto.Name,
                     dto.GameCategory,
                     dto.GamePrice,
                     dto.GameDate
@@ -118,7 +118,7 @@ namespace GameStore.Api
                 return Results.NoContent();
             });
             /// UPDATE existing user
-            app.MapPut("/users/{id}", (int id, UserDto dto, IUserService service) =>
+            app.MapPut("/users/{id}", (int id, UserDtoCreate dto, IUserService service) =>
             {
                 var existing = service.GetUserById(id);
 
@@ -127,7 +127,7 @@ namespace GameStore.Api
 
                 service.UpdateUser(
                     id,
-                    dto.UserName,
+                    dto.Username,
                     dto.Email
                 );
 
