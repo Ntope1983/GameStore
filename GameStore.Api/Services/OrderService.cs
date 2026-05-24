@@ -9,41 +9,44 @@ public class OrderService : IOrderService
         _context = context;
     }
 
-    public List<Order> GetAllOrders()
-    => _context.Order
+    public async Task<List<Order>> GetAllOrders()
+    => await _context.Order
         .Include(o => o.Games)  // ← φόρτωσε και τα games
         .Include(o => o.User)   // ← φόρτωσε και τον user
-        .ToList();
+        .ToListAsync();
 
-    public Order? GetOrderById(int id)
-        => _context.Order.Find(id);
+    public async Task<Order?> GetOrderById(int id)
+     => await _context.Order
+         .Include(o => o.Games)
+         .Include(o => o.User)
+         .FirstOrDefaultAsync(o => o.Id == id); // ← Find() δεν υποστηρίζει Include
 
-    public int AddOrder(OrderDtoCreate order)
+    public async Task<int> AddOrder(OrderDtoCreate order)
     {
-        var userExists = _context.User.Any(u => u.Id == order.UserId);
+        var userExists = await _context.User.AnyAsync(u => u.Id == order.UserId);
         if (!userExists)
             throw new Exception($"User with id {order.UserId} not found");
 
-        List<Game> orderGames = _context.Game
+        List<Game> orderGames = await _context.Game
             .Where(g => order.GamesId.Contains(g.Id))
-            .ToList();
+            .ToListAsync();
 
         Order newOrder = new Order();
         newOrder.UserId = order.UserId;
         newOrder.Games = orderGames;
 
-        _context.Order.Add(newOrder);
-        _context.SaveChanges();
+        await _context.Order.AddAsync(newOrder);
+        await _context.SaveChangesAsync();
         return newOrder.Id;
     }
 
-    public void DeleteOrder(int id)
+    public async Task DeleteOrder(int id)
     {
-        var Order = _context.Order.Find(id);
+        var Order = await _context.Order.FindAsync(id);
         if (Order == null) return;
 
         _context.Order.Remove(Order);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
 }

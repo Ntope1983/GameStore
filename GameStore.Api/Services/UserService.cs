@@ -1,4 +1,6 @@
-﻿public class UserService : IUserService
+﻿using Microsoft.EntityFrameworkCore;
+
+public class UserService : IUserService
 {
     private readonly GameStoreContext _context;
 
@@ -7,34 +9,34 @@
         _context = context;
     }
 
-    public List<User> GetAllUsers()
-        => _context.User.ToList();
+    public async Task<List<User>> GetAllUsers()
+        => await _context.User.ToListAsync();
 
-    public User? GetUserById(int id)
-        => _context.User.Find(id);
+    public async Task<User?> GetUserById(int id)
+        => await _context.User.FindAsync(id);
 
-    public int AddUser(UserDtoCreate user)
+    public async Task<int> AddUser(UserDtoCreate user)
     {
         User newUser = new();
         newUser.Username = user.Username;
         newUser.Email = user.Email;
-        _context.User.Add(newUser);
-        _context.SaveChanges();
+        await _context.User.AddAsync(newUser);
+        await _context.SaveChangesAsync();
         return newUser.Id;
     }
 
-    public void DeleteUser(int id)
+    public async Task DeleteUser(int id)
     {
-        var user = _context.User.Find(id);
+        var user = await _context.User.FindAsync(id);
         if (user == null) return;
 
         _context.User.Remove(user);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
-    public void UpdateUser(int id, string username, string? email)
+    public async Task UpdateUser(int id, string username, string? email)
     {
-        var user = _context.User.Find(id);
+        var user = await _context.User.FindAsync(id);
         if (user == null) return;
 
         if (!string.IsNullOrWhiteSpace(username))
@@ -42,6 +44,6 @@
 
         if (!string.IsNullOrWhiteSpace(email))
             user.Email = email;
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 }

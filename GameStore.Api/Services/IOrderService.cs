@@ -1,13 +1,13 @@
 ﻿public interface IOrderService
 {
-    List<Order> GetAllOrders();
+    Task<List<Order>> GetAllOrders();
 
-    Order? GetOrderById(int id);
+    Task<Order?> GetOrderById(int id);
 
-    int AddOrder(OrderDtoCreate Order);
+    Task<int> AddOrder(OrderDtoCreate Order);
 
 
-    void DeleteOrder(int id);
+    Task DeleteOrder(int id);
 
 
 }

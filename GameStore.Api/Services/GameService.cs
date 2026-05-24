@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 public class GameService : IGameService
 {
     private readonly GameStoreContext _context;
@@ -7,13 +9,13 @@ public class GameService : IGameService
         _context = context;
     }
 
-    public List<Game> GetAllGames()
-        => _context.Game.ToList();
+    public async Task<List<GameDtoResponse>> GetAllGames()
+        => await _context.Game.ToListAsync();
 
-    public Game? GetGameById(int id)
-        => _context.Game.Find(id);
+    public async Task<Game?> GetGameById(int id)
+        => await _context.Game.FindAsync(id);
 
-    public int AddGame(GameDtoCreate game)
+    public async Task<int> AddGame(GameDtoCreate game)
     {
 
         Game Newgame = new Game();
@@ -21,23 +23,23 @@ public class GameService : IGameService
         Newgame.GameCategory = game.GameCategory;
         Newgame.GameDate = game.GameDate;
         Newgame.GamePrice = game.GamePrice;
-        _context.Game.Add(Newgame);
-        _context.SaveChanges();
+        await _context.Game.AddAsync(Newgame);
+        await _context.SaveChangesAsync();
         return Newgame.Id;
     }
 
-    public void DeleteGame(int id)
+    public async Task DeleteGame(int id)
     {
         var game = _context.Game.Find(id);
         if (game == null) return;
 
         _context.Game.Remove(game);
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 
-    public void UpdateGame(int id, string name, string? category, decimal? price, DateOnly? date)
+    public async Task UpdateGame(int id, string name, string? category, decimal? price, DateOnly? date)
     {
-        var game = _context.Game.Find(id);
+        var game = await _context.Game.FindAsync(id);
         if (game == null) return;
 
         if (!string.IsNullOrWhiteSpace(name))
@@ -51,6 +53,6 @@ public class GameService : IGameService
 
         game.GameDate = date;
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
     }
 }

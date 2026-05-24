@@ -51,7 +51,9 @@ namespace GameStore.Api
             // ----------------------------------------------------
             /// Root endpoint (health check)
 
-            app.MapGamesEndpoints()
+            app.MapGamesEndpoints();
+            app.MapUsersEndpoints();
+            app.MapOrdersEndpoints();
             // ----------------------------------------------------
             // 🚀 RUN APPLICATION
             // ----------------------------------------------------
