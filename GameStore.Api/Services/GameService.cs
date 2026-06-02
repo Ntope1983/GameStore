@@ -10,10 +10,24 @@ public class GameService : IGameService
     }
 
     public async Task<List<GameDtoResponse>> GetAllGames()
-        => await _context.Game.ToListAsync();
+    => await _context.Game
+        .Select(g => new GameDtoResponse(
+            g.Id,
+            g.GameName,
+            g.GameCategory,
+            g.GamePrice,
+            g.GameDate))
+        .ToListAsync();
 
-    public async Task<Game?> GetGameById(int id)
-        => await _context.Game.FindAsync(id);
+    public async Task<GameDtoResponse?> GetGameById(int id)
+    {
+        Game? result = await _context.Game.FirstOrDefaultAsync(g => g.Id == id);
+        if (result is not null)
+        {
+            return new GameDtoResponse(result.Id, result.GameName, result.GameCategory, result.GamePrice, result.GameDate);
+        }
+        return null;
+    }
 
     public async Task<int> AddGame(GameDtoCreate game)
     {

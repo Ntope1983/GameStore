@@ -1,6 +1,6 @@
 public interface IGameService
 {
-    Task<List<Game>> GetAllGames();
+    Task<List<GameDtoResponse>> GetAllGames();
     Task<Game?> GetGameById(int id);
     Task<int> AddGame(GameDtoCreate game);
     Task DeleteGame(int id);
