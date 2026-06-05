@@ -9,11 +9,18 @@ public class UserService : IUserService
         _context = context;
     }
 
-    public async Task<List<User>> GetAllUsers()
-        => await _context.User.ToListAsync();
+    public async Task<List<UserDtoResponse>> GetAllUsers()
+        => await _context.User.Select(u => new UserDtoResponse(u.Id, u.Username, u.Email)).ToListAsync();
 
-    public async Task<User?> GetUserById(int id)
-        => await _context.User.FindAsync(id);
+    public async Task<UserDtoResponse?> GetUserById(int id)
+    {
+        User? result = await _context.User.FindAsync(id);
+        if (result is not null)
+        {
+            return new UserDtoResponse(result.Id, result.Username, result.Email);
+        }
+        return null;
+    }
 
     public async Task<int> AddUser(UserDtoCreate user)
     {

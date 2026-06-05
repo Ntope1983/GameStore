@@ -1,9 +1,9 @@
 ﻿public interface IUserService
 {
 
-    Task<List<User>> GetAllUsers();
+    Task<List<UserDtoResponse>> GetAllUsers();
 
-    Task<User?> GetUserById(int id);
+    Task<UserDtoResponse?> GetUserById(int id);
 
     Task<int> AddUser(UserDtoCreate user);
 
