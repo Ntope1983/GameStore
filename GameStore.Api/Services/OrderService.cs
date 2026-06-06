@@ -9,7 +9,7 @@ public class OrderService : IOrderService
         _context = context;
     }
 
-    public async Task<List<Order>> GetAllOrders()
+    public async Task<List<GameDtoResponse>> GetAllOrders()
     => await _context.Order
         .Include(o => o.Games)  // ← φόρτωσε και τα games
         .Include(o => o.User)   // ← φόρτωσε και τον user
